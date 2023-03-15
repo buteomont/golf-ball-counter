@@ -29,11 +29,12 @@ displayWindowLocationY=3+2.54*10-wallThickness; //edge plus 10 hole
 buttonHoleDiameter=12;
 buttonLocationX=boxDimensionX-46.5; //to center of button
 buttonLocationY=11; //ditto
-
+latchLength=boxDimensionX/20;
+latchDiameter=lipHeight/2;
 
 /* [Hidden] */
 fudge=.02;  //mm, used to keep removal areas non-congruent
-$fn=200;
+$fn=50;
 
 
 module go()
@@ -61,6 +62,15 @@ module boxLower()
     translate([0-cornerRadius-fudge/2,wireHoleLocationY,wireHoleLocationZ])
       wireHole();
     }
+  translate([boxDimensionX/2-latchLength,
+              0-cornerRadius+latchDiameter-wallThickness/2,
+              boxDimensionZ-latchDiameter+1]) //+1 for minkowski cylinder height of 1
+    latch();
+  translate([boxDimensionX/2-latchLength,
+              boxDimensionY+cornerRadius-latchDiameter+wallThickness/2,
+              boxDimensionZ-latchDiameter+1]) //+1 for minkowski cylinder height of 1
+    latch();
+  
   translate([0,boxDimensionY,wallThickness])
     standoff(1);
   translate([0,0,wallThickness])
@@ -85,6 +95,20 @@ module standoff(quadrant=1)
     }
   }
 
+module latch()
+  {
+  rotate([0,90,0])
+    {
+    translate([0,0,latchDiameter])
+      {
+      sphere(d=latchDiameter);
+      translate([0,0,latchLength])
+        sphere(d=latchDiameter);      
+      cylinder(d=latchDiameter, h=latchLength);
+      }
+    }
+  }
+
 module lid()
   {
   difference()
@@ -97,6 +121,14 @@ module lid()
       displayHole();
     translate([buttonLocationX,buttonLocationY,-fudge/2])
       buttonHole();
+    translate([boxDimensionX/2-latchLength,
+                0-cornerRadius+latchDiameter-wallThickness/2,
+                lidHeight-latchDiameter/2])
+      latch();
+    translate([boxDimensionX/2-latchLength,
+                boxDimensionY+cornerRadius-latchDiameter+wallThickness/2,
+                lidHeight-latchDiameter/2])
+      latch();
     }
   }
 
@@ -173,7 +205,6 @@ module innerLip()//the inner lip fits inside the outer lip
       cube([boxDimensionX-wallThickness,boxDimensionY-wallThickness,lipHeight-1]);
       cylinder(r=cornerRadius,h=1);
       }
-      
     }
   }
 
